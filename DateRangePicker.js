@@ -1,8 +1,8 @@
 define(["qlik", "jquery", "./lib/moment.min","./CalendarSettings", "css!./css/scoped-bootstrap.css", "css!./lib/daterangepicker.css", "./lib/daterangepicker"
 ],
     function (qlik, $, moment,CalendarSettings) {
-        'use strict';       
-        return {  
+        'use strict';
+        return {
             initialProperties: {
                 version: 1.0,
                 qListObjectDef: {
@@ -72,7 +72,7 @@ define(["qlik", "jquery", "./lib/moment.min","./CalendarSettings", "css!./css/sc
 							}],
                             show: false,
 							defaultValue : 1
-							
+
 						},
 						qSortByNumeric:{
 							type: "numeric",
@@ -90,8 +90,8 @@ define(["qlik", "jquery", "./lib/moment.min","./CalendarSettings", "css!./css/sc
 								label : "Descending"
 							}],
                             show: false,
-							defaultValue : 1							
-						}	
+							defaultValue : 1
+						}
 					}
 				},
                     settings: {
@@ -103,34 +103,36 @@ define(["qlik", "jquery", "./lib/moment.min","./CalendarSettings", "css!./css/sc
             snapshot: {
                 canTakeSnapshot: true
             },
-            paint: function ($element, layout) { 
+            paint: function ($element, layout) {
                 var html;
                 var self = this;
                 var dateRangeId = 'DateRangePicker'+layout.qInfo.qId;
-                var parentElement = 'Container' +layout.qInfo.qId;     
+                var parentElement = 'Container' +layout.qInfo.qId;
                 var isFirstPaint = $element.children().attr("id") !== parentElement;
-                
-                if (isFirstPaint || layout.props.var_isSingleDate !== layout.props.isSingleDate || layout.props.var_lang !== layout.props.locale || layout.props.var_format !== layout.props.format || 
+
+                if (isFirstPaint || layout.props.var_isSingleDate !== layout.props.isSingleDate || layout.props.var_lang !== layout.props.locale || layout.props.var_format !== layout.props.format ||
                     layout.props.var_separator !== layout.props.separator || layout.props.var_rangeLabel !== layout.props.customRangeLabel || layout.props.var_today !== layout.props.today ||
                     layout.props.var_yesterday !== layout.props.yesterday || layout.props.var_last7 !== layout.props.lastXDays.replace("$","7") ||
-                    layout.props.var_last30 !== layout.props.lastXDays.replace("$","30") || layout.props.var_thisMonth !== layout.props.thisMonth || layout.props.var_lastMonth !== layout.props.lastMonth
-                     ) 
+                    layout.props.var_last30 !== layout.props.lastXDays.replace("$","30") || layout.props.var_thisMonth !== layout.props.thisMonth || layout.props.var_lastMonth !== layout.props.lastMonth ||
+                    layout.props.var_thisQuarter !== layout.props.thisQuarter
+                     )
                   {
-      
+
                     layout.props.var_isSingleDate = layout.props.isSingleDate;
                     layout.props.var_lang = layout.props.locale;
                     layout.props.var_format = layout.props.format;
-                    layout.props.var_separator = layout.props.separator; 
+                    layout.props.var_separator = layout.props.separator;
                     layout.props.var_rangeLabel = layout.props.customRangeLabel;
                     layout.props.var_today = layout.props.today;
                     layout.props.var_yesterday = layout.props.yesterday;
                     layout.props.var_last7 = layout.props.lastXDays.replace("$","7");
                     layout.props.var_last30 = layout.props.lastXDays.replace("$","30");
+                    layout.props.var_thisQuarter = layout.props.thisQuarter;
                     layout.props.var_thisMonth = layout.props.thisMonth;
                     layout.props.var_lastMonth = layout.props.lastMonth;
                     moment.locale(layout.props.var_lang);
-                    
-                    if(!isFirstPaint){ 
+
+                    if(!isFirstPaint){
                         $('#'+dateRangeId).remove();
                     }
                    html = "";
@@ -140,16 +142,17 @@ define(["qlik", "jquery", "./lib/moment.min","./CalendarSettings", "css!./css/sc
                    html +='  <span></span> <b class="caret"></b>'
                    html +='</div>'
                    html +='</div>'
-              
+
                    $element.html(html);
-                   
+
                    var rangesLiteral = {};
-                   
+
                    rangesLiteral[layout.props.var_today] = [moment(), moment()];
                    rangesLiteral[layout.props.var_yesterday] =[moment().subtract(1, 'days'), moment().subtract(1, 'days')];
                    rangesLiteral[layout.props.var_last7] = [moment().subtract(6, 'days'), moment()];
                    rangesLiteral[layout.props.var_last30] = [moment().subtract(29, 'days'), moment()];
-                   rangesLiteral[layout.props.var_thisMonth] = [moment().startOf('month'), moment().endOf('month')];          
+                   rangesLiteral[layout.props.var_thisQuarter] = [moment().startOf('quarter'), moment().endOf('quarter')];
+                   rangesLiteral[layout.props.var_thisMonth] = [moment().startOf('month'), moment().endOf('month')];
                    rangesLiteral[layout.props.var_lastMonth] = [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')];
 
 
@@ -158,7 +161,7 @@ define(["qlik", "jquery", "./lib/moment.min","./CalendarSettings", "css!./css/sc
                         ranges: rangesLiteral,
                         "locale": {
                             "format": layout.props.var_format,
-                            "separator": layout.props.var_separator,                          
+                            "separator": layout.props.var_separator,
                             "customRangeLabel": layout.props.var_rangeLabel
                         },
                         "parentEl": parentElement,
@@ -172,9 +175,9 @@ define(["qlik", "jquery", "./lib/moment.min","./CalendarSettings", "css!./css/sc
                         }
                     });
                 }
-            
+
                checkSelections();
-      
+
                 function SelectRange(start, end) {
 
                     qlik.currApp().getAppLayout().then(function (x) {
@@ -182,7 +185,7 @@ define(["qlik", "jquery", "./lib/moment.min","./CalendarSettings", "css!./css/sc
 
                         self.backendApi.search(">=" + start.format(DateFormat) + "<=" + end.format(DateFormat))
                             .then(
-                                function (x) { 
+                                function (x) {
                                    self.backendApi.acceptSearch(false);
                                 })
                     });
@@ -193,16 +196,16 @@ define(["qlik", "jquery", "./lib/moment.min","./CalendarSettings", "css!./css/sc
                     var requestPage = [{
                         qTop: 0,
                         qLeft: 0,
-                        qWidth: 2, 
+                        qWidth: 2,
                         qHeight: layout.qListObject.qDimensionInfo.qStateCounts.qSelected
-                    }];           
+                    }];
 
                      while ( layout.qListObject.qDataPages.length) {
                          layout.qListObject.qDataPages.pop();
                     }
-       
+
                     self.backendApi.getData(requestPage).then(function (dataPages) {
-                        var _start, _end;  
+                        var _start, _end;
                         var datesMap = dataPages[0].qMatrix.map(
                             function (x) {
                                 return x[0].qNum;
@@ -216,12 +219,12 @@ define(["qlik", "jquery", "./lib/moment.min","./CalendarSettings", "css!./css/sc
 
                                 return _isRange;
                             });
-           
+
                         if (isRange && datesMap.length > 0){
                             _start = fromOADate(dataPages[0].qMatrix[0][0].qNum);
                             _end =  fromOADate(dataPages[0].qMatrix[datesMap.length - 1][0].qNum);
                         }
-                                                     
+
                         UpdateText(_start, _end);
                     });
 
@@ -238,14 +241,14 @@ define(["qlik", "jquery", "./lib/moment.min","./CalendarSettings", "css!./css/sc
 
                         $('#' + dateRangeId).data('daterangepicker').setStartDate(start._i);
                         $('#' + dateRangeId).data('daterangepicker').setEndDate(end._i);
-                        
+
                         if(_start._i.toString() !== _end._i.toString()){
                             $('#' + dateRangeId + ' span').html(start.locale(layout.props.var_lang).format(layout.props.var_format) + layout.props.var_separator + end.locale(layout.props.var_lang).format(layout.props.var_format));
                         }
                         else{
                             $('#' + dateRangeId + ' span').html(start.locale(layout.props.var_lang).format(layout.props.var_format));
                         }
-                        
+
                     }
                     else {
                         $('#' + dateRangeId).data('daterangepicker').setStartDate(moment());
@@ -253,7 +256,7 @@ define(["qlik", "jquery", "./lib/moment.min","./CalendarSettings", "css!./css/sc
                         $('#' + dateRangeId + ' span').html(layout.props.defaultText)
                     }
                 };
-       
+
                 // from moment-msdate.js
                 function fromOADate(msDate) {
                     var jO = new Date(((msDate - 25569) * 86400000));
